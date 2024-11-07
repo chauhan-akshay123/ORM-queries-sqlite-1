@@ -1,179 +1,149 @@
-# Music Tracks API
+# Track Management API
 
-This is a Node.js API that allows users to interact with music track data. The API is built using **Express.js** and **Sequelize ORM** to interact with a relational database. It includes functionalities to seed the database, fetch tracks, and sort them by various attributes like release year.
+This API provides endpoints to manage a collection of tracks (songs or movies) stored in a database. It supports CRUD operations such as creating, reading, updating, deleting, and sorting tracks. The API is built with Node.js, Express, and Sequelize for database operations.
 
-## Features
+## Prerequisites
 
-- **Seed Database**: Populate the database with initial music track data.
-- **Fetch All Tracks**: Retrieve all tracks stored in the database.
-- **Fetch Track by ID**: Retrieve a specific track by its unique ID.
-- **Fetch Track by Artist**: Retrieve all tracks from a specific artist.
-- **Sort Tracks by Release Year**: Sort tracks based on their release year in ascending or descending order.
+- Node.js (v12 or higher)
+- sqlite or another compatible SQL database
+- Sequelize ORM
+- Install dependencies using:
 
-## Technologies Used
+  ```bash
+  npm install
+  ```
 
-- **Node.js**: JavaScript runtime used for the server-side application.
-- **Express.js**: Web framework for building the API.
-- **Sequelize ORM**: Object-relational mapper used to interact with the SQL database.
-- **SQLite/PostgreSQL/MySQL** (depending on your database configuration): Relational database to store the track data.
-
-## Folder Structure
-
-The project follows a simple folder structure:
+## Project Structure
 
 ```
-/project-root
-  /models
-    track.model.js        # Sequelize model for track data
-  /lib
-    index.js              # Sequelize connection and initialization
-  index.js                   # Main Express.js server file
+├── models
+│   └── track.model.js     # Sequelize model for track
+├── lib
+│   └── index.js           # Sequelize instance and database configuration
+├── index.js              # Main server file
+└── README.md              # API documentation
 ```
 
-## Installation
+## Setup Instructions
 
-### Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- **Node.js**: [Download Node.js](https://nodejs.org/)
-- **NPM**: Node package manager (comes with Node.js)
-- **Database**: Ensure you have a relational database set up (SQLite, PostgreSQL, or MySQL).
-
-### Steps to Run the Application
-
-1. **Clone the repository**:
+1. **Database Configuration**: Ensure you have a PostgreSQL (or compatible) database set up. Configure the connection in `lib/index.js`.
+2. **Run the Server**:
 
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   node server.js
    ```
 
-2. **Install dependencies**:
-
-   Run the following command to install all necessary dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. **Set up the database**:
-
-   Make sure your Sequelize connection (`/lib/index.js`) is correctly configured to your database. The app uses Sequelize to sync and manage the models.
-
-4. **Start the server**:
-
-   Run the application on port `3000`:
-
-   ```bash
-   node app.js
-   ```
-
-   The server will be running on `http://localhost:3000`.
+3. **Base URL**: The server will run on `http://localhost:3000`.
 
 ## API Endpoints
 
-### 1. **Seed Database**
+### 1. Seed Database
 
-   - **Endpoint**: `GET /seed_db`
-   - **Description**: Seeds the database with initial track data.
-   - **Response**: Success message on seeding or an error message.
+Populate the database with initial track data.
 
-   ```json
-   {
-     "message": "Database seeding successful."
-   }
-   ```
+- **Endpoint**: `/seed_db`
+- **Method**: `GET`
+- **Response**:
+  - Success: `{ "message": "Database seeding successful." }`
+  - Failure: `{ "message": "Error seeding the data", "error": "<error_message>" }`
 
-### 2. **Fetch All Tracks**
+### 2. Fetch All Tracks
 
-   - **Endpoint**: `GET /tracks`
-   - **Description**: Retrieves all tracks from the database.
-   - **Response**:
+Retrieve all tracks from the database.
 
-   ```json
-   {
-     "tracks": [
-       {
-         "name": "Raabta",
-         "genre": "Romantic",
-         "release_year": 2012,
-         "artist": "Arijit Singh",
-         "album": "Agent Vinod",
-         "duration": 4
-       },
-       ...
-     ]
-   }
-   ```
+- **Endpoint**: `/tracks`
+- **Method**: `GET`
+- **Response**:
+  - Success: `{ "tracks": [...] }`
+  - Failure: `{ "message": "Error fetching tracks", "error": "<error_message>" }`
 
-### 3. **Fetch Track by ID**
+### 3. Fetch Track by ID
 
-   - **Endpoint**: `GET /tracks/details/:id`
-   - **Description**: Retrieves a specific track by its ID.
-   - **Response**:
+Retrieve a specific track by its ID.
 
-   ```json
-   {
-     "track": {
-       "id": 1,
-       "name": "Raabta",
-       "genre": "Romantic",
-       "release_year": 2012,
-       "artist": "Arijit Singh",
-       "album": "Agent Vinod",
-       "duration": 4
-     }
-   }
-   ```
+- **Endpoint**: `/tracks/details/:id`
+- **Method**: `GET`
+- **Response**:
+  - Success: `{ "track": { ... } }`
+  - If Not Found: `{ "message": "Track not found." }`
 
-### 4. **Fetch Track by Artist**
+### 4. Fetch Tracks by Artist
 
-   - **Endpoint**: `GET /tracks/artist/:artist`
-   - **Description**: Retrieves all tracks from a specific artist.
-   - **Response**:
+Retrieve tracks by a specified artist.
 
-   ```json
-   {
-     "tracks": [
-       {
-         "name": "Raabta",
-         "genre": "Romantic",
-         "release_year": 2012,
-         "artist": "Arijit Singh",
-         "album": "Agent Vinod",
-         "duration": 4
-       },
-       ...
-     ]
-   }
-   ```
+- **Endpoint**: `/tracks/artist/:artist`
+- **Method**: `GET`
+- **Response**:
+  - Success: `{ "tracks": [...] }`
+  - If Not Found: `{ "message": "Track not found." }`
 
-### 5. **Sort Tracks by Release Year**
+### 5. Sort Tracks by Release Year
 
-   - **Endpoint**: `GET /tracks/sort/release_year?order=asc|desc`
-   - **Description**: Sorts tracks by their release year in either ascending or descending order.
-   - **Query Params**:
-     - `order`: The sorting order (`asc` or `desc`).
-   - **Response**:
+Sort tracks by their release year in ascending or descending order.
 
-   ```json
-   {
-     "tracks": [
-       {
-         "name": "Raabta",
-         "genre": "Romantic",
-         "release_year": 2012,
-         "artist": "Arijit Singh",
-         "album": "Agent Vinod",
-         "duration": 4
-       },
-       ...
-     ]
-   }
-   ```
+- **Endpoint**: `/tracks/sort/release_year`
+- **Method**: `GET`
+- **Query Parameters**: `order` - `asc` or `desc`
+- **Response**:
+  - Success: `{ "tracks": [...] }`
+  - Failure: `{ "message": "Error sorting the tracks", "error": "<error_message>" }`
+
+### 6. Add a New Track
+
+Add a new track to the database.
+
+- **Endpoint**: `/tracks/new`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "newTrack": {
+      "name": "Song Name",
+      "genre": "Genre",
+      "release_year": 2021,
+      "artist": "Artist Name",
+      "album": "Album Name",
+      "duration": 3
+    }
+  }
+  ```
+- **Response**:
+  - Success: `{ "newTrack": { ... } }`
+  - Failure: `{ "message": "Error adding new track.", "error": "<error_message>" }`
+
+### 7. Update Track Information by ID
+
+Update an existing track by its ID.
+
+- **Endpoint**: `/tracks/update/:id`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "name": "Updated Song Name",
+    "genre": "Updated Genre"
+  }
+  ```
+- **Response**:
+  - Success: `{ "message": "Track updated successfully.", "updatedTrack": { ... } }`
+  - If Not Found: `{ "message": "Track not found." }`
+
+### 8. Delete Track by ID
+
+Delete a track from the database by its ID.
+
+- **Endpoint**: `/tracks/delete`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "id": 1
+  }
+  ```
+- **Response**:
+  - Success: `{ "message": "Track record has been deleted successfully." }`
+  - If Not Found: `{ "message": "Track not found." }`
 
 ## Error Handling
 
-- **404 - Track Not Found**: If the requested track is not found, the server responds with a `404` status and an error message.
-- **500 - Internal Server Error**: If an error occurs while processing the request, the server responds with a `500` status and the error message.
+Each endpoint returns a `500` status code with a detailed error message if an unexpected error occurs.
