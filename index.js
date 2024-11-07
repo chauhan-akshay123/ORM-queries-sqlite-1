@@ -194,6 +194,81 @@ app.get("/tracks/sort/release_year", async (req, res) => {
   }
 });
 
+// function to add new track
+async function addNewTrack(trackData){
+  let newTrack = await track.create(trackData);
+
+  return { newTrack };
+}
+
+// Endpoint to add a new track in the database
+app.post("/tracks/new", async (req, res) => {
+ try{
+   let newTrack = req.body.newTrack;
+   let response = await addNewTrack(newTrack);
+   return res.status(200).json(response);
+ } catch(error){
+   res.status(500).json({ message: "Error adding new track.", error: error.message });
+ }
+});
+
+// function to update track information
+async function updateTrackById(updateTrackData, id){
+ let trackDetails = await track.findOne({ where: { id } });
+ if(!trackDetails){
+    return {};
+ }
+
+ trackDetails.set(updateTrackData);
+ let updatedTrack = await trackDetails.save();
+
+ return {message: "Track updated successfully.", updatedTrack};
+}
+
+// Endpoint to update track information
+app.post("/tracks/update/:id", async (req, res) => {
+ try{
+    let newTrackData = req.body;
+    let id = parseInt(req.params.id);
+    let response = await updateTrackById(newTrackData, id);
+
+    if(!response.message){
+        return res.status(404).json({ message: "Track not found." });
+    }
+    
+    return res.status(200).json(response);
+ } catch(error){
+    res.status(500).json({message: "Error updating the Id", error: error.message});
+ }
+});
+
+// function to delete track by Id
+async function deleteTrackById(id){
+    let destroyedTrack = await track.destroy({ where: { id } });
+
+    if(destroyedTrack === 0){
+        return {};
+    }
+    
+    return { message: "Track record has been deleted successfully." };
+}
+
+// Endpoint to delete a track from database
+app.post("/tracks/delete", async (req, res) => {
+  try{
+    let id = parseInt(req.body.id);
+    let response = await deleteTrackById(id);
+    
+    if(!response.message){
+        return res.status(404).json({ message: "Track not found." });
+    }
+
+    return res.status(200).json(response);
+  } catch(error){
+    res.status(500).json({ message: "Error deleting the track by Id", error: error.message });
+  }
+});
+
 app.listen(3000, () => {
   console.log("Server is running on Port : 3000");
 });
