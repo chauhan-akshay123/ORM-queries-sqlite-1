@@ -1,257 +1,271 @@
 const express = require("express");
-const cors = require("cors");
+let { track } = require("./models/track.model");  // Model for the track, which likely represents the database schema for movie data
+let { sequelize } = require("./lib/index");  // Sequelize instance used to connect to the database
 const app = express();
-let { employee } = require("./models/employee.model");
-let { sequelize } = require("./lib/index");
 
-app.use(express.json());
-app.use(cors());
+// Middleware setup
+app.use(express.json());  // Correct usage of express.json()
 
-let employeeData =[
-    {
-      id: 1,
-      name: 'John Doe',
-      designation: 'Manager',
-      department: 'Sales',
-      salary: 90000,
-    },
-    {
-      id: 2,
-      name: 'Anna Brown',
-      designation: 'Developer',
-      department: 'Engineering',
-      salary: 80000,
-    },
-    {
-      id: 3,
-      name: 'James Smith',
-      designation: 'Designer',
-      department: 'Marketing',
-      salary: 70000,
-    },
-    {
-      id: 4,
-      name: 'Emily Davis',
-      designation: 'HR Specialist',
-      department: 'Human Resources',
-      salary: 60000,
-    },
-    {
-      id: 5,
-      name: 'Michael Wilson',
-      designation: 'Developer',
-      department: 'Engineering',
-      salary: 85000,
-    },
-    {
-      id: 6,
-      name: 'Sarah Johnson',
-      designation: 'Data Analyst',
-      department: 'Data Science',
-      salary: 75000,
-    },
-    {
-      id: 7,
-      name: 'David Lee',
-      designation: 'QA Engineer',
-      department: 'Quality Assurance',
-      salary: 70000,
-    },
-    {
-      id: 8,
-      name: 'Linda Martinez',
-      designation: 'Office Manager',
-      department: 'Administration',
-      salary: 50000,
-    },
-    {
-      id: 9,
-      name: 'Robert Hernandez',
-      designation: 'Product Manager',
-      department: 'Product',
-      salary: 95000,
-    },
-    {
-      id: 10,
-      name: 'Karen Clark',
-      designation: 'Sales Associate',
-      department: 'Sales',
-      salary: 55000,
-    },
-  ];
+// Movie data array to seed the database
+let movieData = [
+  {
+    name: 'Raabta',
+    genre: 'Romantic',
+    release_year: 2012,
+    artist: 'Arijit Singh',
+    album: 'Agent Vinod',
+    duration: 4,
+  },
+  {
+    name: 'Naina Da Kya Kasoor',
+    genre: 'Pop',
+    release_year: 2018,
+    artist: 'Amit Trivedi',
+    album: 'Andhadhun',
+    duration: 3,
+  },
+  {
+    name: 'Ghoomar',
+    genre: 'Traditional',
+    release_year: 2018,
+    artist: 'Shreya Ghoshal',
+    album: 'Padmaavat',
+    duration: 3,
+  },
+  {
+    name: 'Bekhayali',
+    genre: 'Rock',
+    release_year: 2019,
+    artist: 'Sachet Tandon',
+    album: 'Kabir Singh',
+    duration: 6,
+  },
+  {
+    name: 'Hawa Banke',
+    genre: 'Romantic',
+    release_year: 2019,
+    artist: 'Darshan Raval',
+    album: 'Hawa Banke (Single)',
+    duration: 3,
+  },
+  {
+    name: 'Ghungroo',
+    genre: 'Dance',
+    release_year: 2019,
+    artist: 'Arijit Singh',
+    album: 'War',
+    duration: 5,
+  },
+  {
+    name: 'Makhna',
+    genre: 'Hip-Hop',
+    release_year: 2019,
+    artist: 'Tanishk Bagchi',
+    album: 'Drive',
+    duration: 3,
+  },
+  {
+    name: 'Tera Ban Jaunga',
+    genre: 'Romantic',
+    release_year: 2019,
+    artist: 'Tulsi Kumar',
+    album: 'Kabir Singh',
+    duration: 3,
+  },
+  {
+    name: 'First Class',
+    genre: 'Dance',
+    release_year: 2019,
+    artist: 'Arijit Singh',
+    album: 'Kalank',
+    duration: 4,
+  },
+  {
+    name: 'Kalank Title Track',
+    genre: 'Romantic',
+    release_year: 2019,
+    artist: 'Arijit Singh',
+    album: 'Kalank',
+    duration: 5,
+  },
+]
 
 // Defining a route to seed the database
 app.get("/seed_db", async (req, res) => {
- try{
-   await sequelize.sync({ force: true });
-   await employee.bulkCreate(employeeData);
-   
-   res.status(200).json({ message: "Database seeding successful." });
-
- } catch(error){
-   res.status(500).json({ message: "Error seeding the database", error: error.message });
- }
-});
-
-// function to fetch all employees
-async function fetchAllEmployees(){
-  let employees = await employee.findAll();
-  return { employees };
-}
-
-// Endpoint to fetch all employees
-app.get("/employees", async (req, res) => {
- try{ 
- let response = await fetchAllEmployees();
- 
- if(response.employees.length === 0){
-   return res.status(404).json({ message: "No employee found." });
- }
-
- return res.status(200).json(response);
- } catch(error){
-   res.status(500).json({ message: "Error fetching employees", error: error.message });
- }
-});
-
-// function to fetch employee details by Id
-async function fetchEmployeeById(id){
-  let employeeData = await employee.findOne({ where: {id} });
-  return { employee : employeeData };
-}
-
-// Endpoint to fetch employee details by Id
-app.get("/employees/details/:id", async (req, res) => {
-  try{
-    let id = parseInt(req.params.id);
-    let result = await fetchEmployeeById(id);
-
-    if(result.employee === null){
-      return res.status(404).json({ message: "Employee not found." });
-    }
+  try {
+    // Syncs the database, recreating all tables as per models
+    await sequelize.sync({ force: true });  // `force: true` drops existing tables and recreates them
     
-    return res.status(200).json(result);
-  } catch(error){
-    res.status(500).json({ message: "Error fetching employee by Id", error: error.message });
+    // Bulk inserts all data from the movieData array into the track table
+    await track.bulkCreate(movieData);
+    
+    res.status(200).json({ message: "Database seeding successful." });
+  } catch (error) {
+    res.status(500).json({ message: "Error seeding the data", error: error.message });
   }
 });
 
-// function to fetch all employees by department
-async function fetchEmployeesByDepartment(department){
-  let employees = await employee.findAll({where: { department }});
-  return { employees: employees };
+// function to fetch all tracks
+async function fetchAllTracks(){
+  let tracks = await track.findAll();
+  return { tracks };
 }
 
-// Endpoint to fetch all employees by department
-app.get("/employees/department/:department", async (req, res) => {
+// Endpoint to fetch all tracks
+app.get("/tracks", async (req, res) => {
  try{
-  let department = req.params.department;
-  let result = await fetchEmployeesByDepartment(department);
+   let response = await fetchAllTracks();
 
-  if(result.employees.length === 0){
-    return res.status(404).json({ message: "No employees found." });
+   if(response.tracks.length === 0){
+     return res.status(404).json({ message: "No tracks found." });
+   }
+
+   return res.status(200).json(response);
+ } catch(error){
+   res.status(500).json({ message: "Error fetching tracks", error: error.message });
+ }
+});
+
+// function to fetch track by Id
+async function fetchTrackById(id){
+  let trackData = await track.findOne({ where: { id } });
+
+  return { track: trackData };
+}
+
+// Endpoint to fetch a track by Id
+app.get("/tracks/details/:id", async (req, res) => {
+ try{
+  let id = parseInt(req.params.id);  
+  let result = await fetchTrackById(id);
+
+  if(result.track === null){
+    return res.status(404).json({ error: "Track not found." });
   }
-  
+
   return res.status(200).json(result);
  } catch(error){
-   res.status(500).json({ message: "Error fetching employees by department", error: error.message });
+   res.status(500).json({ message: "Error fetching a track by Id", error: error.message });
  }
 });
 
-// function to sort all employees by their salaries
-async function sortedEmployees(order){
-  let sortedEmployee = await employee.findAll({order: [["salary", order]]});
-  return { employees: sortedEmployee };
+// function to fetch a track by artist
+async function fetchTrackByArtist(artist){
+  let tracks = await track.findAll({ where: {artist} });
+  return { tracks: tracks };
 }
 
-// Endpoint to sort all employees by their salaries
-app.get("/employees/sort/salary", async (req, res) => {
-  try{
-    let order = req.query.order;
-    let result = await sortedEmployees(order);
+// Endpoint to fetch a track by Artit
+app.get("/tracks/artist/:artist", async (req, res) => {
+ try{
+    let artist = req.params.artist;
+    let result = await fetchTrackByArtist(artist);
+    
+    if(result.tracks.length === 0){
+      return res.status(404).json({ message: "Track not found." });
+    }
+    
+    return res.status(200).json(result);
+ } catch(error){
+   res.status(500).json({ message: "Error fetching track by an artist", error: error.message });
+ }
+});
 
-    if(result.employees.length === 0){
-      return res.status(404).json({ message: "No employees found." });
+// function to Sort all the tracks by their release year
+async function sortTrackByReleaseYear(order){
+  let sortedTracks = await track.findAll({ order: [["release_year", order]]});
+
+  return { tracks: sortedTracks };
+}
+
+// Endpoint to fetch sorted tracks by their release year by specifying the order
+app.get("/tracks/sort/release_year", async (req, res) => {
+  try{
+    let order = req.query.order 
+    let result = await sortTrackByReleaseYear(order);  
+    
+    if(result.tracks.length === 0){
+      return res.status(404).json({ error: "No tracks found" });
     }
 
     return res.status(200).json(result);
   } catch(error){
-    res.status(500).json({ message: "Error fething sorted employees", error: error.message });
+    res.status(500).json({ message: "Error sorting the tracks", error: error.message });
   }
 });
 
-// function to add a new employee
-async function addNewEmployee(employeeData){
-   let newEmployee = await employee.create(employeeData);
-   
-   return {newEmployee};
+// function to add new track
+async function addNewTrack(trackData){
+  let newTrack = await track.create(trackData);
+
+  return { newTrack };
 }
 
-// Endpoint to add new employee
-app.post("/employees/new", async (req, res) => {
+// Endpoint to add a new track in the database
+app.post("/tracks/new", async (req, res) => {
  try{
-    let newEmployee = req.body.newEmployee;
-    let response = await addNewEmployee(newEmployee);
-    return res.status(200).json(response);
+   let newTrack = req.body.newTrack;
+   let response = await addNewTrack(newTrack);
+   return res.status(200).json(response);
  } catch(error){
-    res.status(500).json({ message: "Error adding new employee", error: error.message });
+   res.status(500).json({ message: "Error adding new track.", error: error.message });
  }
 });
 
-// function to update employee information by Id
-async function updateById(updateEmployeeData, id){
-    let employeeDetails = await employee.findOne({ where: { id } });
-    if(!employeeDetails){
-       return {}; 
-    }
-
-    employeeDetails.set(updateEmployeeData);
-    let updatedEmployee = await employeeDetails.save();
-
-    return { message: "Employee has been updated successfully.", updatedEmployee };
-}
-
-// Endpoint to update employee information
-app.post("/employees/update/:id", async (req, res) => {
- try{
-    let newEmployeeData = req.body;
-    let id = parseInt(req.params.id);
-    let response = await updateById(newEmployeeData ,id);
-
-    if(!response.message){
-        return res.status(404).json({ message: "Employee not found." });
-    }
-    
-    return res.status(200).json(response);
- } catch(error){
-    res.status(500).json({ message: "Error updating employee", error: error.message });
- }
-});
-
-// function to delete an employee
-async function deleteById(id){
- let destroyedEmployee = await employee.destroy({ where: { id } });
-
- if(destroyedEmployee === 0){
+// function to update track information
+async function updateTrackById(updateTrackData, id){
+ let trackDetails = await track.findOne({ where: { id } });
+ if(!trackDetails){
     return {};
  }
 
- return { message: "Employee record has been deleted successfully." };
+ trackDetails.set(updateTrackData);
+ let updatedTrack = await trackDetails.save();
+
+ return {message: "Track updated successfully.", updatedTrack};
 }
 
-// Endpoint to delete an employee
-app.post("/employees/delete", async (req, res) => {
-  try{
-    let id = parseInt(req.body.id);
-    let response = await deleteById(id);
+// Endpoint to update track information
+app.post("/tracks/update/:id", async (req, res) => {
+ try{
+    let newTrackData = req.body;
+    let id = parseInt(req.params.id);
+    let response = await updateTrackById(newTrackData, id);
 
     if(!response.message){
-        return res.status(404).json({ message: "Employee not found." });
+        return res.status(404).json({ message: "Track not found." });
+    }
+    
+    return res.status(200).json(response);
+ } catch(error){
+    res.status(500).json({message: "Error updating the Id", error: error.message});
+ }
+});
+
+// function to delete track by Id
+async function deleteTrackById(id){
+    let destroyedTrack = await track.destroy({ where: { id } });
+
+    if(destroyedTrack === 0){
+        return {};
+    }
+    
+    return { message: "Track record has been deleted successfully." };
+}
+
+// Endpoint to delete a track from database
+app.post("/tracks/delete", async (req, res) => {
+  try{
+    let id = parseInt(req.body.id);
+    let response = await deleteTrackById(id);
+    
+    if(!response.message){
+        return res.status(404).json({ message: "Track not found." });
     }
 
     return res.status(200).json(response);
   } catch(error){
-    res.status(500).json({ message: "Error deleting the employee", error: error.message });
+    res.status(500).json({ message: "Error deleting the track by Id", error: error.message });
   }
 });
 
