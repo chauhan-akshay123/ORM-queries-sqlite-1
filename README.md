@@ -1,149 +1,153 @@
-# Track Management API
+# Employee Management API
 
-This API provides endpoints to manage a collection of tracks (songs or movies) stored in a database. It supports CRUD operations such as creating, reading, updating, deleting, and sorting tracks. The API is built with Node.js, Express, and Sequelize for database operations.
+This project is an Employee Management API built with Node.js, Express, and Sequelize (with a MySQL/PostgreSQL/SQLite database). It allows users to perform CRUD operations on employee data, including creating, reading, updating, deleting, and filtering employees based on their attributes.
 
-## Prerequisites
+## Features
 
-- Node.js (v12 or higher)
-- sqlite or another compatible SQL database
-- Sequelize ORM
-- Install dependencies using:
+- **Database Seeding**: Seed the database with initial employee data.
+- **CRUD Operations**: 
+  - Create a new employee record.
+  - Retrieve all employees or filter employees by specific criteria.
+  - Update an employee's details by ID.
+  - Delete an employee record by ID.
+- **Filtering and Sorting**: 
+  - Retrieve employees by department.
+  - Sort employees based on their salary.
 
-  ```bash
-  npm install
-  ```
-
-## Project Structure
-
-```
-├── models
-│   └── track.model.js     # Sequelize model for track
-├── lib
-│   └── index.js           # Sequelize instance and database configuration
-├── index.js              # Main server file
-└── README.md              # API documentation
-```
-
-## Setup Instructions
-
-1. **Database Configuration**: Ensure you have a PostgreSQL (or compatible) database set up. Configure the connection in `lib/index.js`.
-2. **Run the Server**:
-
-   ```bash
-   node server.js
-   ```
-
-3. **Base URL**: The server will run on `http://localhost:3000`.
-
-## API Endpoints
+## Endpoints
 
 ### 1. Seed Database
 
-Populate the database with initial track data.
+Seeds the database with a list of sample employees.
 
-- **Endpoint**: `/seed_db`
+- **URL**: `/seed_db`
 - **Method**: `GET`
-- **Response**:
-  - Success: `{ "message": "Database seeding successful." }`
-  - Failure: `{ "message": "Error seeding the data", "error": "<error_message>" }`
+- **Response**: `{ message: "Database seeding successful." }`
 
-### 2. Fetch All Tracks
+### 2. Fetch All Employees
 
-Retrieve all tracks from the database.
+Retrieves all employee records.
 
-- **Endpoint**: `/tracks`
+- **URL**: `/employees`
 - **Method**: `GET`
-- **Response**:
-  - Success: `{ "tracks": [...] }`
-  - Failure: `{ "message": "Error fetching tracks", "error": "<error_message>" }`
+- **Response**: `{ employees: [...] }` (Returns an array of all employee records)
 
-### 3. Fetch Track by ID
+### 3. Fetch Employee by ID
 
-Retrieve a specific track by its ID.
+Fetches details of a specific employee based on their ID.
 
-- **Endpoint**: `/tracks/details/:id`
+- **URL**: `/employees/details/:id`
 - **Method**: `GET`
-- **Response**:
-  - Success: `{ "track": { ... } }`
-  - If Not Found: `{ "message": "Track not found." }`
+- **Response**: `{ employee: {...} }` (Returns the employee details)
 
-### 4. Fetch Tracks by Artist
+### 4. Fetch Employees by Department
 
-Retrieve tracks by a specified artist.
+Fetches employees based on their department.
 
-- **Endpoint**: `/tracks/artist/:artist`
+- **URL**: `/employees/department/:department`
 - **Method**: `GET`
-- **Response**:
-  - Success: `{ "tracks": [...] }`
-  - If Not Found: `{ "message": "Track not found." }`
+- **Response**: `{ employees: [...] }` (Returns employees in the specified department)
 
-### 5. Sort Tracks by Release Year
+### 5. Sort Employees by Salary
 
-Sort tracks by their release year in ascending or descending order.
+Sorts employees by salary in ascending or descending order.
 
-- **Endpoint**: `/tracks/sort/release_year`
+- **URL**: `/employees/sort/salary`
 - **Method**: `GET`
-- **Query Parameters**: `order` - `asc` or `desc`
-- **Response**:
-  - Success: `{ "tracks": [...] }`
-  - Failure: `{ "message": "Error sorting the tracks", "error": "<error_message>" }`
+- **Query Params**: `order` (`ASC` or `DESC`)
+- **Response**: `{ employees: [...] }` (Returns employees sorted by salary)
 
-### 6. Add a New Track
+### 6. Add New Employee
 
-Add a new track to the database.
+Adds a new employee record.
 
-- **Endpoint**: `/tracks/new`
+- **URL**: `/employees/new`
 - **Method**: `POST`
-- **Request Body**:
-  ```json
-  {
-    "newTrack": {
-      "name": "Song Name",
-      "genre": "Genre",
-      "release_year": 2021,
-      "artist": "Artist Name",
-      "album": "Album Name",
-      "duration": 3
-    }
-  }
-  ```
-- **Response**:
-  - Success: `{ "newTrack": { ... } }`
-  - Failure: `{ "message": "Error adding new track.", "error": "<error_message>" }`
+- **Request Body**: `{ newEmployee: {...} }`
+- **Response**: `{ newEmployee: {...} }` (Returns the newly created employee)
 
-### 7. Update Track Information by ID
+### 7. Update Employee by ID
 
-Update an existing track by its ID.
+Updates an existing employee's information.
 
-- **Endpoint**: `/tracks/update/:id`
+- **URL**: `/employees/update/:id`
 - **Method**: `POST`
-- **Request Body**:
-  ```json
-  {
-    "name": "Updated Song Name",
-    "genre": "Updated Genre"
-  }
-  ```
-- **Response**:
-  - Success: `{ "message": "Track updated successfully.", "updatedTrack": { ... } }`
-  - If Not Found: `{ "message": "Track not found." }`
+- **Request Body**: `{ ...updatedFields }`
+- **Response**: `{ message: "Employee has been updated successfully.", updatedEmployee: {...} }`
 
-### 8. Delete Track by ID
+### 8. Delete Employee by ID
 
-Delete a track from the database by its ID.
+Deletes an employee record based on the provided ID.
 
-- **Endpoint**: `/tracks/delete`
+- **URL**: `/employees/delete`
 - **Method**: `POST`
-- **Request Body**:
-  ```json
-  {
-    "id": 1
-  }
-  ```
-- **Response**:
-  - Success: `{ "message": "Track record has been deleted successfully." }`
-  - If Not Found: `{ "message": "Track not found." }`
+- **Request Body**: `{ id: employeeId }`
+- **Response**: `{ message: "Employee record has been deleted successfully." }`
+
+## Setup and Installation
+
+1. Clone this repository:
+
+   ```bash
+   git clone https://github.com/your-username/employee-management-api.git
+   cd employee-management-api
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Set up your database in the `lib/index.js` file (using Sequelize), with a configuration like this:
+
+   ```javascript
+   const { Sequelize } = require('sequelize');
+   const sequelize = new Sequelize('database', 'username', 'password', {
+     host: 'localhost',
+     dialect: 'mysql' // or 'postgres' or 'sqlite' as per your database
+   });
+   ```
+
+4. Run the server:
+
+   ```bash
+   node index.js
+   ```
+
+   The server should be running on `http://localhost:3000`.
+
+## Technologies Used
+
+- **Node.js** and **Express**: For backend API creation.
+- **Sequelize**: For ORM and database interaction.
+- **MySQL/PostgreSQL/SQLite**: For data storage.
+- **Cors**: To allow cross-origin requests.
 
 ## Error Handling
 
-Each endpoint returns a `500` status code with a detailed error message if an unexpected error occurs.
+Errors are handled with appropriate HTTP status codes and error messages. Common responses include:
+
+- **404 Not Found**: For non-existent employee records.
+- **500 Internal Server Error**: For any unexpected issues.
+
+## Example Usage
+
+To seed the database, visit:
+
+```
+http://localhost:3000/seed_db
+```
+
+To add a new employee, use a POST request to `/employees/new` with employee data in the body. For example:
+
+```json
+{
+  "newEmployee": {
+    "name": "Alice Johnson",
+    "designation": "Developer",
+    "department": "Engineering",
+    "salary": 80000
+  }
+}
+```
